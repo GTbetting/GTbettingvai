@@ -1,9 +1,13 @@
-import React from 'react'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import LoginPage from "./pages/LoginPage";
 
 export default function App() {
   return (
-    <div>
-      <h1>GTBetting está no ar!</h1>
-    </div>
-  )
+    <Router>
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        {/* futuras rotas: /home, /admin, etc */}
+      </Routes>
+    </Router>
+  );
 }
