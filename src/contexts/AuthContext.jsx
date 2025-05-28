@@ -1,37 +1,40 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_KEY);
+import { createContext, useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import supabase from '../supabaseClient';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const session = supabase.auth.getSession().then(({ data }) => {
-      setUser(data?.session?.user || null);
-    });
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
-    });
-
-    return () => {
-      listener.subscription.unsubscribe();
-    };
-  }, []);
+  const navigate = useNavigate();
 
   const signInWithGoogle = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
     });
+    if (error) console.error('Erro ao logar com Google:', error.message);
   };
 
   const signOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
+    navigate('/');
   };
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+
+    getUser();
+
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => listener.subscription.unsubscribe();
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, signInWithGoogle, signOut }}>
