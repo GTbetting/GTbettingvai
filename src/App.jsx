@@ -6,7 +6,6 @@ export default function App() {
     <Router>
       <Routes>
         <Route path="/" element={<LoginPage />} />
-        {/* futuras rotas: /home, /admin, etc */}
       </Routes>
     </Router>
   );
